@@ -32,46 +32,45 @@ def handle(fd):
     title = False
     
     line = fd.readline().split(',')
-    try:
-        while True:
-            key, value, sched = [], [], []
-            if line[0][:22] == 'RELEASE HEADER SECTION':
-                key.extend(fd.readline().split(','))
-                value.extend(fd.readline().split(','))
+    if line[0][:22] != 'RELEASE HEADER SECTION':
+        tkMessageBox.showinfo('错误', '无法处理的xlsx')
+        return
+    while True:
+        key, value, sched = [], [], []
+        if line[0][:22] == 'RELEASE HEADER SECTION':
+            key.extend(fd.readline().split(','))
+            value.extend(fd.readline().split(','))
 
+            line = fd.readline().split(',')
+            key.extend(fd.readline().split(','))
+            value.extend(fd.readline().split(','))
+
+            line = fd.readline().split(',')
+            key.extend(fd.readline().split(','))
+            value.extend(fd.readline().split(','))
+
+            line = fd.readline().split(',')
+            key.extend(fd.readline().split(','))
+            while True:
                 line = fd.readline().split(',')
-                key.extend(fd.readline().split(','))
-                value.extend(fd.readline().split(','))
+                if not line[0] or line[0][:22] == 'RELEASE HEADER SECTION':
+                    break
+                sched.append(line)
 
-                line = fd.readline().split(',')
-                key.extend(fd.readline().split(','))
-                value.extend(fd.readline().split(','))
+        if not title:
+            treedata.append(key)
+            title = True
+        for i in range(len(sched)):
+            row = []
+            row.extend(value)
+            row.extend(sched[i])
+            if i > 0:
+                row.append('DITTO')
+            treedata.append(row)
 
-                line = fd.readline().split(',')
-                key.extend(fd.readline().split(','))
-                while True:
-                    line = fd.readline().split(',')
-                    if not line[0] or line[0][:22] == 'RELEASE HEADER SECTION':
-                        break
-                    sched.append(line)
-            else:
-                raise Exception('无法处理文件')
+        if not line[0]:
+            break
 
-            if not title:
-                treedata.append(key)
-                title = True
-            for i in range(len(sched)):
-                row = []
-                row.extend(value)
-                row.extend(sched[i])
-                if i > 0:
-                    row.append('DITTO')
-                treedata.append(row)
-
-            if not line[0]:
-                break
-    except Exception, e:
-        tkMessageBox.showinfo("错误", unicode(e))
     return treedata
 
 
