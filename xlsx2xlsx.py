@@ -1,14 +1,12 @@
 # coding: utf-8
 from __future__ import unicode_literals
-from io import StringIO
-from openpyxl import load_workbook, Workbook
-from helper import XlsxHelper
 
 import tkFileDialog
 import tkMessageBox
 import ttk
 from Tkinter import *
 
+from helper import XlsxHelper
 
 class MainHandler(object):
     def __init__(self):
@@ -20,19 +18,22 @@ class MainHandler(object):
         }
 
     def update_table(self):
-        sy = Scrollbar(root)
-        sy.pack(side=RIGHT, fill=Y)
-        tree = ttk.Treeview(root, columns=self.helper.treedata[0], show="headings", height=20)
-        tree.configure(yscroll=sy.set)
-        sy.config(command=tree.yview)
+        treedata = self.helper.as_table()
+        
+        tree = ttk.Treeview(root, columns=treedata[0], show="headings", height=20)
+        ysb = Scrollbar(root, orient='vertical', command=tree.yview)
+        ysb.pack(side=RIGHT, fill=Y)
+        xsb = Scrollbar(root, orient='horizontal', command=tree.xview)
+        xsb.pack(side=BOTTOM, fill=X)
+        tree.configure(yscroll=ysb.set, xscroll=xsb.set)
 
-        for key in self.helper.treedata[0]:
-            tree.column(key, width=10, anchor='center')
+        for key in treedata[0]:
+            tree.column(key, width=100, anchor='center')
             tree.heading(key, text=key)
 
         tree.pack()
-        for row in self.helper.treedata[1:]:
-            tree.insert('', 1, values=row)
+        for row in treedata[1:]:
+            tree.insert('', 100, values=row)
 
     def askopenfilename(self):
         if self.helper.treedata:
@@ -55,10 +56,12 @@ class MainHandler(object):
             filename = tkFileDialog.asksaveasfilename(**self.file_opt)
             if filename:
                 self.helper.save(filename)
+                tkMessageBox.showinfo("成功", '导出成功')
+                root.quit()
 
 root = Tk()
-root.geometry('500x300+400+300')
-root.resizable(False, False)
+root.geometry('800x300+200+100')
+root.resizable(True, False)
 
 handler = MainHandler()
 
