@@ -1,5 +1,7 @@
 # coding: utf-8
 from __future__ import unicode_literals
+from random import randint
+from copy import deepcopy
 from io import StringIO
 from openpyxl import load_workbook, Workbook
 
@@ -36,15 +38,15 @@ class XlsxHelper(object):
                 key.extend(self.output.readline().split(','))
                 value.extend(self.output.readline().split(','))
     
-                line = self.output.readline().split(',')
+                self.output.readline().split(',')
                 key.extend(self.output.readline().split(','))
                 value.extend(self.output.readline().split(','))
     
-                line = self.output.readline().split(',')
+                self.output.readline().split(',')
                 key.extend(self.output.readline().split(','))
                 value.extend(self.output.readline().split(','))
     
-                line = self.output.readline().split(',')
+                self.output.readline().split(',')
                 key.extend(self.output.readline().split(','))
                 while True:
                     line = self.output.readline().split(',')
@@ -67,6 +69,17 @@ class XlsxHelper(object):
                 break
     
         self.treedata = treedata
+
+    def as_table(self):
+        if self.treedata:
+            tb = deepcopy(self.treedata)
+            keys = tb[0]
+            for index, key in enumerate(keys):
+                if index != keys.index(key):
+                    extra = randint(1000, 9999)
+                    keys[index] = '%s_%d' % (key, extra)
+            return tb
+        return []
 
     def save(self, filename):
         wb = Workbook(write_only=True)
